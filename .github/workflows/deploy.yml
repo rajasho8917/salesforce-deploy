@@ -1,0 +1,31 @@
+name: Deploy to Salesforce
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Salesforce CLI
+        uses: salesforcecli/github-action@v2
+
+      - name: Write server.key from secret
+        run: echo "${{ secrets.JWT_SERVER_KEY }}" > server.key
+
+      - name: Authenticate with Salesforce
+        run: |
+          sf org login jwt \
+            --client-id ${{ secrets.SF_CONSUMER_KEY }} \
+            --jwt-key-file server.key \
+            --username ${{ secrets.SF_USERNAME }} \
+            --instance-url ${{ secrets.INSTANCE_URL }}
+
+      - name: Deploy source to Salesforce
+        run: sf project deploy start --source-dir force-app --test-level RunLocalTests
