@@ -16,7 +16,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
 
       - name: Install Salesforce CLI
         run: npm install --global @salesforce/cli
@@ -33,7 +33,11 @@ jobs:
             --client-id ${{ secrets.SF_CONSUMER_KEY }} \
             --jwt-key-file server.key \
             --username ${{ secrets.SF_USERNAME }} \
-            --instance-url ${{ secrets.INSTANCE_URL }}
+            --instance-url ${{ secrets.INSTANCE_URL }} \
+            --alias myOrg
+
+      - name: Set default org
+        run: sf config set target-org=myOrg
 
       - name: Deploy source to Salesforce
         run: sf project deploy start --source-dir force-app --test-level RunLocalTests
